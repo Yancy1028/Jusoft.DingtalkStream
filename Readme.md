@@ -7,9 +7,11 @@ C# 版本的钉钉Stream模式API SDK，支持订阅内容扩展，目前有【�
 
 ## 使用说明
 
+[直接去看代码示例](#代码示例)
+
 ### 准备工作
 - 钉钉开发者账号，具备创建企业内部应用的权限，详见[成为钉钉开发者](https://open.dingtalk.com/document/orgapp/become-a-dingtalk-developer)
-- 支持.NET Core3.1、.NET 6.0、.NET Standard 2.1 的任意开发环境
+- 支持 .NET Core3.1、.NET 6.0、.NET Standard 2.1 的任意开发环境
 
 ### 安装
 ```bash
@@ -36,12 +38,33 @@ Install-Package Jusoft.DingtalkStream
 
 ## 代码示例
 
+```csharp
+// =================  DefaultMessageHandler.cs  ====================
+//
+// 实现消息处理类
+// 
+// 继承 DingtalkStreamMessageHandler ，已实现 type:SYSTEM,topic:ping 及 type:SYSTEM,topic:disconnect 回调的处理
+// 重写 HandleMessage 方法，可处理所有能收到的消息
+
+public class DefaultMessageHandler : DingtalkStreamMessageHandler
+{
+    public override void HandleMessage(DingtalkStreamMessage message)
+    {
+        // 此处添加处理消息的代码
+
+        
+        // 如果需要使用默认的处理方式，可调用 base.HandleMessage 方法
+        base.HandleMessage(client, messageType, message);
+    }
+}
+```
+
 ### 方式1、常规方式使用
 
 ```csharp
 // =================  Program.cs  ====================
 
-// 设置
+// 定义设置内容
 var options=new DingtalkStreamOptions(){
     // 三方应用使用: SuiteKey
     // 企业自建使用：Appkey
@@ -51,7 +74,7 @@ var options=new DingtalkStreamOptions(){
     ClientSecret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 };
 // 创建Stearm回调处理实例
-var client=new DingtalkStreamClient();
+var client=new DingtalkStreamClient(options,new DefaultMessageHandler());
 
 // 注册事件回调
 client.RegisterEventSubscription()；
@@ -80,7 +103,7 @@ builder.Services.AddDingtalkStream(options =>
 
 // 通过实现 DingtalkStreamMessageHandler 的单例可处理所有能收到的消息
 // 其中 DingtalkStreamMessageHandler 内部已实现 type:SYSTEM,topic:ping 及 type:SYSTEM,topic:disconnect 回调的处理
-```csharp
+builder.Services.AddSingleton<DingtalkStreamMessageHandler, DefaultMessageHandler>();
 
 ```
 
