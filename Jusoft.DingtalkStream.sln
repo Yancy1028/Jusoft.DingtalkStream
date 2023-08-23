@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33927.249
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jusoft.DingtalkStream", "Jusoft.DingtalkStream\Jusoft.DingtalkStream.csproj", "{59CB9CC7-7FED-4042-99D5-92199D5C0491}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DingtalkStreamDemo", "DingtalkStreamDemo\DingtalkStreamDemo.csproj", "{1FEC3C32-C3A2-4C31-A4E6-3C8C1CE32403}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0B7C8256-08BA-4981-9A57-D9488415318B}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59CB9CC7-7FED-4042-99D5-92199D5C0491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59CB9CC7-7FED-4042-99D5-92199D5C0491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59CB9CC7-7FED-4042-99D5-92199D5C0491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59CB9CC7-7FED-4042-99D5-92199D5C0491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FEC3C32-C3A2-4C31-A4E6-3C8C1CE32403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FEC3C32-C3A2-4C31-A4E6-3C8C1CE32403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FEC3C32-C3A2-4C31-A4E6-3C8C1CE32403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FEC3C32-C3A2-4C31-A4E6-3C8C1CE32403}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FEF64C94-3A0B-40C5-9B4E-4050B6CC4114}
+	EndGlobalSection
+EndGlobal
