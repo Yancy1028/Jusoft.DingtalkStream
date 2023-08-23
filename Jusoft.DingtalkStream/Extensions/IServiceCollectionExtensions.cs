@@ -16,7 +16,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Configure(Configuration);
             services.AddSingleton<DingtalkStreamClient>();
-            services.AddSingleton<DingtalkStreamMessageHandler, DefaultMessageHandler>();
 
             return services;
         }

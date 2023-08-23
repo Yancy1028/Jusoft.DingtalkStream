@@ -91,17 +91,18 @@ namespace Jusoft.DingtalkStream
                 }
                 writer.WriteEndArray();
                 // 生成 UA 信息
-                var userAgent = $"{Utilities.GetSDKVersion()} {Utilities.GetOSVersion()} {Utilities.GetOSVersion()}";
+                var userAgent = $"{Utilities.GetOSVersion()} {Utilities.GetFrameworkVersion()} {Utilities.GetSDKVersion()}";
                 if (!string.IsNullOrWhiteSpace(options.UA))
                 {
                     userAgent = $"{userAgent} {options.UA}";
                 }
                 writer.WriteString("ua", userAgent);
-                // 获取第一个使用的本地IP
-                var localIp = Utilities.GetLocalIps().FirstOrDefault();
+                // 将本地的多个IP 写入
+
+                var localIp = string.Join(',', Utilities.GetLocalIps());
                 if (localIp != null)
                 {
-                    writer.WriteString("localIp", localIp.ToString());
+                    writer.WriteString("localIp", localIp);
                 }
                 writer.WriteEndObject();
 
@@ -109,6 +110,9 @@ namespace Jusoft.DingtalkStream
 
                 jsonContentStr = Encoding.UTF8.GetString(stream.GetBuffer());
             }
+            Console.WriteLine("====================== 请求凭据 ======================");
+            Console.WriteLine(jsonContentStr);
+
             #endregion
             var requestBodyContent = new StringContent(jsonContentStr, Encoding.UTF8, mediaType: "application/json");
 
@@ -180,9 +184,12 @@ namespace Jusoft.DingtalkStream
             if (webSocketClient.State != WebSocketState.Open)
             {
                 throw new DingtalkStreamException("连接钉钉回调网关失败。连接地址：" + endPoint);
+
             }
             // 开始接收消息
             _ = Task.Run(ReceiveHandler);
+
+            Console.Write("服务已启动");
         }
         /// <summary>
         /// 重启订阅服务

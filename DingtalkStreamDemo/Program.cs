@@ -3,6 +3,8 @@
 
 using DingtalkStreamDemo;
 
+using Jusoft.DingtalkStream;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -13,6 +15,8 @@ builder.Services.AddDingtalkStream(options =>
     options.ClientId = "dingXXXXXXXXXXXX";
     options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 });
+
+builder.Services.AddTransient<DingtalkStreamMessageHandler, DefaultMessageHandler>();
 
 
 builder.Services.AddHostedService<Worker>();

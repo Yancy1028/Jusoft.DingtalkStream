@@ -20,7 +20,7 @@ namespace DingtalkStreamDemo
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(1000);
+            await Task.Delay(1000);// 延迟一小会儿再开始;
             try
             {
                 this.client.RegisterEventSubscription();
