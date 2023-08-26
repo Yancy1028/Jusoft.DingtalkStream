@@ -13,6 +13,8 @@ C# 版本的钉钉Stream模式API SDK，支持订阅内容扩展，目前有【�
 		<PackageProjectUrl></PackageProjectUrl>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Yancy1028/Jusoft.DingtalkStream</RepositoryUrl>
+		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream</PackageTags>
+		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'netstandard2.1' ">
