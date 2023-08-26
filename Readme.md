@@ -38,88 +38,72 @@ Install-Package Jusoft.DingtalkStream
 
 ## 代码示例
 
+> 创建项目类型推荐选择：辅助角色服务(Worker Service)
+
 ```csharp
 // =================  DefaultMessageHandler.cs  ====================
-//
 // 实现消息处理类
-// 
-// 继承 DingtalkStreamMessageHandler ，已实现 type:SYSTEM,topic:ping 及 type:SYSTEM,topic:disconnect 回调的处理
+//
+// 继承 IDingtalkStreamMessageHandler
 // 重写 HandleMessage 方法，可处理所有能收到的消息
-
-public class DefaultMessageHandler : DingtalkStreamMessageHandler
+public class DefaultMessageHandler : IDingtalkStreamMessageHandler
 {
-    public override void HandleMessage(DingtalkStreamMessage message)
+    public override async Task HandleMessage(MessageEventHanderArgs e)
     {
-        // 此处添加处理消息的代码
+        // 此处进行订阅的 Topic 的处理,处理消息的代码
 
-        
-        // 如果需要使用默认的处理方式，可调用 base.HandleMessage 方法
-        base.HandleMessage(client, messageType, message);
+        var replyMessageData = string.Empty;// 记录最终回复消息的Data 的内容
+        switch (e.Type)
+        {
+            case SubscriptionType.EVENT:
+                // 事件推送的处理
+                replyMessageData = await DingtalkStreamUtilities.CreateReplyEventSuccessMessageData("自定义成功消息");
+                // replyMessageData = await DingtalkStreamUtilities.CreateReplyEventFaildMessageData("自定义失败消息");
+                break;
+            case SubscriptionType.CALLBACK:
+                // 回调推送的处理
+                replyMessageData = await DingtalkStreamUtilities.CreateReplyCallbackMessageData("自定义回调结果");
+                break;
+        }
+
+        // 创建回复的消息
+        var replyMessage = await DingtalkStreamUtilities.CreateReplyMessage(e.Headers.MessageId, replyMessageData);
+        // 回复消息方法
+        await e.Reply(replyMessage);
+
+        //return Task.CompletedTask;
     }
 }
 ```
 
-### 方式1、常规方式使用
-
 ```csharp
 // =================  Program.cs  ====================
+IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        services.AddDingtalkStream(options =>
+        {
+            options.ClientId = "dingXXXXXXXXXXXX";
+            options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
-// 定义设置内容
-var options=new DingtalkStreamOptions(){
-    // 三方应用使用: SuiteKey
-    // 企业自建使用：Appkey
-    ClientId="dingXXXXXXXXXXXX",
-    // 三方应用使用：SuiteSecret
-    // 企业自建使用：AppSecret
-    ClientSecret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-};
-// 创建Stearm回调处理实例
-var client=new DingtalkStreamClient(options,new DefaultMessageHandler());
+            // options.UA = "dingtalk-stream-demo/1.0.0"; // 扩展的自定义的UA
+            // options.Subscriptions.Add //  订阅，也可以在这里配置
 
-// 注册事件回调
-client.RegisterEventSubscription()；
+            options.AutoReplySystemMessage = true; // 自动回复 SYSTEM 的消息（ping,disconnect）
 
-// 启动（注意：异步）
-client.Start();
-```
+        }).RegisterEventSubscription()  // 注册事件订阅 （可选）
+          .RegisterCardInstanceCallback()// 注册卡片回调 （可选）
+          .RegisterIMRobotMessageCallback()// 注册机器人消息回调 （可选）
+           //.RegisterSubscription("{type}","{topic}")// 注册订阅基础方法
+          .AddMessageHandler<DefaultMessageHandler>() //添加消息处理服务
+          .AddHostServices();// 添加主机服务，用于启动 DingtalkStreamClient
 
-### 方式2、通过注入方式使用
+    })
+    .Build();
 
-> 请参考 DingtalkStreamDemo 中的代码示例
-
-```csharp
-// =================  Program.cs  ====================
-
-// 注册后可使用 DingtalkStreamClient （单例）进行使用
-builder.Services.AddDingtalkStream(options =>
-{
-    // 三方应用使用: SuiteKey
-    // 企业自建使用：Appkey
-    options.ClientId = "dingXXXXXXXXXXXX";
-    // 三方应用使用：SuiteSecret
-    // 企业自建使用：AppSecret
-    options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-});
-
-// 通过实现 DingtalkStreamMessageHandler 的单例可处理所有能收到的消息
-// 其中 DingtalkStreamMessageHandler 内部已实现 type:SYSTEM,topic:ping 及 type:SYSTEM,topic:disconnect 回调的处理
-builder.Services.AddSingleton<DingtalkStreamMessageHandler, DefaultMessageHandler>();
+await host.RunAsync();
 
 ```
-
-```csharp
-// =================  Worker.cs  ====================
-
-// Worker 中获得 DingtalkStreamClient client 的注册服务
-
-// 在执行前进行注册
-// 注册事件回调
-client.RegisterEventSubscription()；
-
-// 注册完毕后执启动（异步）
-client.Start();
-```
-
 ## 技术支持
 
 [点击链接，加入Stream模式共创群交流](https://open-dingtalk.github.io/developerpedia/docs/explore/support/?via=moon-group)

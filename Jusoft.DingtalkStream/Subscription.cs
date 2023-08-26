@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace Jusoft.DingtalkStream.Models
+namespace Jusoft.DingtalkStream
 {
     /// <summary>
     /// 订阅信息
@@ -11,10 +11,11 @@ namespace Jusoft.DingtalkStream.Models
     public class Subscription
     {
         /// <summary>
-        /// 默认 <code cef="SubscriptionType.EVENT">SubscriptionType.EVENT</code>
+        /// 默认 SubscriptionType.EVENT
         /// 可选 EVENT、CALLBACK
         /// </summary>
-        public string Type { get; set; } = SubscriptionType.EVENT;
+        public string Type { get; set; }
+
         /// <summary>
         /// 订阅的具体业务topic，<br />
         /// - 事件类型统一填写*，<br />

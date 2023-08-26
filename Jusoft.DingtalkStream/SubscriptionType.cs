@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Jusoft.DingtalkStream.Models
+namespace Jusoft.DingtalkStream
 {
     public static class SubscriptionType
     {
+        /// <summary>
+        /// 系统事件（无需订阅）
+        /// </summary>
+        public const string SYSTEM = "SYSTEM";
         /// <summary>
         /// 事件类型
         /// </summary>
