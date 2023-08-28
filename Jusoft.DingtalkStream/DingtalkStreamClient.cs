@@ -215,7 +215,7 @@ namespace Jusoft.DingtalkStream
                 if (messageType == WebSocketMessageType.Text)
                 {
                     var payload = JsonDocument.Parse(message);
-                    logger.LogDebug("收到消息：{}", payload.RootElement.GetString());
+                    logger.LogDebug("收到消息：{}", payload.RootElement.ToString());
 
                     var jsonElmSpecVersion = payload.RootElement.GetProperty("specVersion");// 协议版本
                     var jsonElmType = payload.RootElement.GetProperty("type"); // 推送数据类型。SYSTEM: 系统数据; EVENT：事件推送; CALLBACK：回调推送

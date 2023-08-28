@@ -11,8 +11,8 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddDingtalkStream(options =>
         {
-            //options.ClientId = "dingXXXXXXXXXXXX";
-            //options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            options.ClientId = "dingXXXXXXXXXXXX";
+            options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
             // options.UA = "dingtalk-stream-demo"; // 扩展的自定义的UA
             // options.Subscriptions.Add //  订阅，也可以在这里配置

@@ -41,7 +41,7 @@ namespace Jusoft.DingtalkStream.Internals
 
         private void Client_OnMessage(object sender, MessageEventHanderArgs e)
         {
-            var handler = ActivatorUtilities.CreateInstance<IDingtalkStreamMessageHandler>(serviceProvider);
+            var handler = serviceProvider.GetRequiredService<IDingtalkStreamMessageHandler>();
             try
             {
                 handler?.HandleMessage(e);
