@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Jusoft.DingtalkStream.Internals
+namespace Jusoft.DingtalkStream.Core.Internals
 {
     internal class GetGatewayEndpointResponse
     {

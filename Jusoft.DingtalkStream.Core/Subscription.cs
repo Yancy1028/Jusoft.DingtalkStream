@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace Jusoft.DingtalkStream
+namespace Jusoft.DingtalkStream.Core
 {
     /// <summary>
     /// 订阅信息

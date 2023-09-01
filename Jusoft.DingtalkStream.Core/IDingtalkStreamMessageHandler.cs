@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jusoft.DingtalkStream
+namespace Jusoft.DingtalkStream.Core
 {
     public interface IDingtalkStreamMessageHandler
     {

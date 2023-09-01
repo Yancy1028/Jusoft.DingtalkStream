@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Jusoft.DingtalkStream
+namespace Jusoft.DingtalkStream.Core
 {
     public class DingtalkStreamException : Exception
     {

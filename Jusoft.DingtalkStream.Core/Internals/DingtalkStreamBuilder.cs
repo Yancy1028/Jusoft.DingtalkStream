@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace Jusoft.DingtalkStream.Internals
+namespace Jusoft.DingtalkStream.Core.Internals
 {
     internal class DingtalkStreamBuilder : IDingtalkStreamBuilder
     {

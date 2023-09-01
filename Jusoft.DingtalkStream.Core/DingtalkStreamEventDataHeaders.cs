@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace Jusoft.DingtalkStream
+namespace Jusoft.DingtalkStream.Core
 {
     /// <summary>
     /// EVENT 事件推送的headers 信息
@@ -26,9 +26,9 @@ namespace Jusoft.DingtalkStream
         /// </summary>
         public string EventCorpId => this.Payload.GetProperty("eventCorpId").GetString();
         /// <summary>
-        /// 事件生成时间。
+        /// 事件生成时间（毫秒）
         /// </summary>
-        public long EventBornTime => this.Payload.GetProperty("eventBornTime").GetInt64();
+        public long EventBornTime => Convert.ToInt64(this.Payload.GetProperty("eventBornTime").GetString());// 钉钉返回的eventBornTime 是字符串类型，此处需要转换为long类型后进行使用
         /// <summary>
         /// 统一应用身份Id。
         /// </summary>

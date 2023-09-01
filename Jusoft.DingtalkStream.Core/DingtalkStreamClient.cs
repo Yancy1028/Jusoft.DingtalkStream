@@ -1,4 +1,4 @@
-using Jusoft.DingtalkStream.Internals;
+using Jusoft.DingtalkStream.Core.Internals;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Jusoft.DingtalkStream
+namespace Jusoft.DingtalkStream.Core
 {
     /// <summary>
     /// 钉钉Stream客户端

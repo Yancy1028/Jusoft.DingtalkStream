@@ -1,6 +1,6 @@
 using DingtalkStreamDemo;
 
-using Jusoft.DingtalkStream;
+using Jusoft.DingtalkStream.Core;
 
 
 
@@ -11,8 +11,9 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddDingtalkStream(options =>
         {
-            options.ClientId = "dingXXXXXXXXXXXX";
-            options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
+            //options.ClientId = "dingXXXXXXXXXXXXXXXXXX";
+            //options.ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
             // options.UA = "dingtalk-stream-demo"; // 扩展的自定义的UA
             // options.Subscriptions.Add //  订阅，也可以在这里配置
@@ -21,7 +22,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         }).RegisterEventSubscription()  // 注册事件订阅 （可选）
           .RegisterCardInstanceCallback()// 注册卡片回调 （可选）
-          .RegisterIMRobotMessageCallback()// 注册机器人消息回调 （可选）
+          .RegisterIMRobotMessageCallback()// 注册机器人消息回调 （可选） // 需要添加 Jusoft.DingtalkStream.Robot 包
           .AddMessageHandler<DefaultMessageHandler>() //添加消息处理服务
           .AddHostServices();// 添加主机服务，用于启动 DingtalkStreamClient
 

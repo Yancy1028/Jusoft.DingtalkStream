@@ -7,7 +7,7 @@ using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace Jusoft.DingtalkStream.Internals
+namespace Jusoft.DingtalkStream.Core.Internals
 {
     /// <summary>
     /// 内部辅助的工具类，不污染外部

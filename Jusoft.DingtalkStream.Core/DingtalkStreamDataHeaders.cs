@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace Jusoft.DingtalkStream
+namespace Jusoft.DingtalkStream.Core
 {
     /// <summary>
     /// 钉钉数据信息头
@@ -14,11 +14,13 @@ namespace Jusoft.DingtalkStream
         {
             this.Payload = payload;
         }
-
         /// <summary>
         /// 消息的原始 JSON 数据
         /// </summary>
         public JsonElement Payload { get; }
+
+        public string AppId => this.Payload.GetProperty("appId").GetString();
+        public string ConnectionId => this.Payload.GetProperty("connectionId").GetString();
 
         /// <summary>
         /// 本次推送的业务 Topic
@@ -38,6 +40,6 @@ namespace Jusoft.DingtalkStream
         /// <summary>
         /// 推送时间,为unix时间戳，单位：毫秒
         /// </summary>
-        public long Time => this.Payload.GetProperty("time").GetInt64();
+        public long Time => Convert.ToInt64(this.Payload.GetProperty("time").GetString());// 钉钉返回的time 是字符串类型，此处需要转换为long类型后进行使用
     }
 }

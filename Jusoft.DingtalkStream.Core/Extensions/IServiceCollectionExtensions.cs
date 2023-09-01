@@ -1,6 +1,6 @@
 
-using Jusoft.DingtalkStream;
-using Jusoft.DingtalkStream.Internals;
+using Jusoft.DingtalkStream.Core;
+using Jusoft.DingtalkStream.Core.Internals;
 using Microsoft.Extensions.Configuration;
 
 using System;

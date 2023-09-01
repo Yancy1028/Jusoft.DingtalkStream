@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Jusoft.DingtalkStream.Internals
+namespace Jusoft.DingtalkStream.Core.Internals
 {
     internal class DingtalkStreamClientWorker : BackgroundService
     {
@@ -41,9 +41,10 @@ namespace Jusoft.DingtalkStream.Internals
 
         private void Client_OnMessage(object sender, MessageEventHanderArgs e)
         {
-            var handler = serviceProvider.GetRequiredService<IDingtalkStreamMessageHandler>();
             try
             {
+                using var scope = serviceProvider.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<IDingtalkStreamMessageHandler>();
                 handler?.HandleMessage(e);
             }
             catch (Exception ex)

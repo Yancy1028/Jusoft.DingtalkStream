@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net6.0;netstandard2.1</TargetFrameworks>
 		<Title>Dingtalk Stream SDK</Title>
@@ -17,7 +18,12 @@
 		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream</PackageTags>
 		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
 	</PropertyGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+		<PackageReference Include="System.Text.Json" Version="6.0.0" />
+	</ItemGroup>
+
 	<ItemGroup>
-	  <ProjectReference Include="..\Jusoft.DingtalkStream.Robot\Jusoft.DingtalkStream.Robot.csproj" />
+	  <ProjectReference Include="..\Jusoft.DingtalkStream.Core\Jusoft.DingtalkStream.Core.csproj" />
 	</ItemGroup>
 </Project>
