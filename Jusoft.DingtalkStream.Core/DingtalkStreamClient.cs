@@ -140,7 +140,7 @@ namespace Jusoft.DingtalkStream.Core
         /// 启动
         /// </summary>
         /// <returns></returns>
-        public async Task Start( )
+        public async Task Start()
         {
             logger.LogInformation("开始启动【钉钉Stream客户端】。");
 
@@ -171,16 +171,73 @@ namespace Jusoft.DingtalkStream.Core
         /// <returns></returns>
         public async Task Restart(string statusDescription)
         {
-            logger.LogInformation("开始重启【钉钉Stream客户端】。");
-            if (webSocketClient.State == WebSocketState.Open)
+            try
             {
-                logger.LogInformation("正在进行断连【钉钉Stream客户端】。");
-                // 主动断开连接
-                await webSocketClient.CloseAsync(WebSocketCloseStatus.Empty, statusDescription, CancellationToken.None);
+                logger.LogInformation("即将重启【钉钉Stream客户端】。原因：{}", statusDescription);
+                if (webSocketClient.State == WebSocketState.Open)
+                {
+                    logger.LogInformation("正在关闭与【钉钉Stream】服务的连接。");
+                    // 主动断开连接
+                    await webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, CancellationToken.None);
+                }
+                await Start();
             }
-            await Start();
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "重启【钉钉Stream客户端】时发生了异常，程序已停止。");
+            }
         }
+        /// <summary>
+        /// 针对消息体进行处理
+        /// </summary>
+        /// <param name="socketMessageType"></param>
+        /// <param name="messageByts"></param>
+        /// <returns></returns>
+        async Task MessageHandler(WebSocketMessageType socketMessageType, byte[] messageByts)
+        {
+            try
+            {
+                switch (socketMessageType)
+                {
+                    case WebSocketMessageType.Text:
+                        {
+                            var payload = JsonDocument.Parse(messageByts);
+                            logger.LogDebug("收到消息：{}", payload.RootElement.ToString());
 
+                            var jsonElmSpecVersion = payload.RootElement.GetProperty("specVersion");// 协议版本
+                            var jsonElmType = payload.RootElement.GetProperty("type"); // 推送数据类型。SYSTEM: 系统数据; EVENT：事件推送; CALLBACK：回调推送
+                            var jsonElmHeaders = payload.RootElement.GetProperty("headers");// 提取headers
+                            var jsonElmMessageId = jsonElmHeaders.GetProperty("messageId"); // 推送消息ID，标记一次推送，客户端需要关注此信息并且在响应的时候将此信息回传给服务端
+
+                            // 是否针对消息已进行了处理
+                            var isHandled = false;
+                            // 判断是否内部接管自动回复系统消息的处理
+                            if (options.AutoReplySystemMessage && jsonElmType.GetString() == "SYSTEM")
+                            {
+                                isHandled = await this.OnSystemMessage(payload);
+                            }
+
+                            // 判断消息是否未处理，针对所有未处理的消息转交到 OnMessage 事件中进行处理。
+                            if (!isHandled)
+                            {
+                                // 触发消息事件
+                                OnMessage?.Invoke(this, new MessageEventHanderArgs(payload.RootElement)
+                                {
+                                    Reply = (data) => webSocketClient.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None)
+                                });
+                            }
+                        }
+                        return;
+                    case WebSocketMessageType.Binary:
+                        logger.LogWarning("收到二进制类型的消息。SDK 暂不处理");
+                        return;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "处理消息时发生了异常。");
+            }
+        }
         /// <summary>
         /// 接收消息处理程序
         /// </summary>
@@ -191,52 +248,35 @@ namespace Jusoft.DingtalkStream.Core
 
             while (webSocketClient.State == WebSocketState.Open)
             {
-                WebSocketReceiveResult result;// 接收结果
-                WebSocketMessageType messageType; // 记录消息类型
-                using var memoryStream = new MemoryStream();// 缓存接收到的消息数据
-                do
+                try
                 {
-                    result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-                    messageType = result.MessageType;
-                    // 判断是否关闭了消息传输
-                    if (messageType == WebSocketMessageType.Close)
+                    WebSocketReceiveResult result;// 接收结果
+                    WebSocketMessageType messageType; // 记录消息类型
+                    using var memoryStream = new MemoryStream();// 缓存接收到的消息数据
+                    do
                     {
-                        throw new WebSocketException(WebSocketError.ConnectionClosedPrematurely, result.CloseStatusDescription);
-                    }
-                    // 写入内存流
-                    await memoryStream.WriteAsync(buffer.AsMemory(0, result.Count));
-                } while (!result.EndOfMessage);
-                // 设置内存流指针到开始位置
-                memoryStream.Seek(0, SeekOrigin.Begin);
+                        result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                var message = memoryStream.ToArray();
-
-                if (messageType == WebSocketMessageType.Text)
-                {
-                    var payload = JsonDocument.Parse(message);
-                    logger.LogDebug("收到消息：{}", payload.RootElement.ToString());
-
-                    var jsonElmSpecVersion = payload.RootElement.GetProperty("specVersion");// 协议版本
-                    var jsonElmType = payload.RootElement.GetProperty("type"); // 推送数据类型。SYSTEM: 系统数据; EVENT：事件推送; CALLBACK：回调推送
-                    var jsonElmHeaders = payload.RootElement.GetProperty("headers");// 提取headers
-                    var jsonElmMessageId = jsonElmHeaders.GetProperty("messageId"); // 推送消息ID，标记一次推送，客户端需要关注此信息并且在响应的时候将此信息回传给服务端
-
-                    // 判断是否内部接管自动回复系统消息的处理
-                    if (options.AutoReplySystemMessage && jsonElmType.GetString() == "SYSTEM")
-                    {
-                        _ = this.OnSystemMessage(payload);
-                    }
-                    else
-                    {
-                        // 触发消息事件
-                        OnMessage?.Invoke(this, new MessageEventHanderArgs(payload.RootElement)
+                        messageType = result.MessageType;
+                        // 判断是否关闭了消息传输
+                        if (messageType == WebSocketMessageType.Close)
                         {
-                            Reply = (data) => webSocketClient.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None)
-                        });
-                    }
-                }
+                            throw new WebSocketException(WebSocketError.ConnectionClosedPrematurely, result.CloseStatusDescription);
+                        }
+                        // 写入内存流
+                        await memoryStream.WriteAsync(buffer.AsMemory(0, result.Count));
+                    } while (!result.EndOfMessage);
+                    // 设置内存流指针到开始位置
+                    memoryStream.Seek(0, SeekOrigin.Begin);
 
+                    _ = MessageHandler(messageType, memoryStream.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "接收消息时发生了异常。");
+                    // 重启订阅服务
+                    await Restart("接收消息时发生了异常。");
+                }
             }
         }
 
@@ -245,7 +285,7 @@ namespace Jusoft.DingtalkStream.Core
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        async Task OnSystemMessage(JsonDocument payload)
+        async Task<bool> OnSystemMessage(JsonDocument payload)
         {
             var jsonElmData = payload.RootElement.GetProperty("data");// 推送数据内容
 
@@ -258,14 +298,14 @@ namespace Jusoft.DingtalkStream.Core
                 case "ping":// 探活
                     var replyMessageByts = await DingtalkStreamUtilities.CreateReplyMessage(jsonElmMessageId.GetString(), jsonElmData.GetString());
                     await webSocketClient.SendAsync(replyMessageByts, WebSocketMessageType.Text, true, CancellationToken.None);
-                    break;
+                    return true;
                 case "disconnect":
                     // 断连请求 topic 为 disconnect,， 收到断连请求后，连接将不会再有新的下行消息推送下来， 此期间客户端依然可以通过此连接响应正在处理的请求。 客户端收到断连请求之后，需要发起新的注册长连接和建连请求，原有的ticket无法复用。客户端不需要对此推送信息做任何响应， 服务端在静默10s之后会主动断开 tcp 连接。
                     //! 对于钉钉侧，可能因为各种未知原因，会主动断开连接，此时需要重新注册连接
                     await this.Restart("钉钉服务要求客户端进行重连");
-                    return;
+                    return true;
             }
-
+            return false;
         }
 
         /// <summary>
