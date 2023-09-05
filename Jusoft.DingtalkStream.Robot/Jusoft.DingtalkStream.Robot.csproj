@@ -10,7 +10,7 @@
 
 CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is easier to access the DingTalk chatbot</Description>
 		<Copyright>上海鸿欢网络科技有限公司</Copyright>
-		<PackageProjectUrl></PackageProjectUrl>
+		<PackageProjectUrl>https://www.nuget.org/packages/Jusoft.DingtalkStream.Robot</PackageProjectUrl>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Yancy1028/Jusoft.DingtalkStream</RepositoryUrl>
 		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream,钉钉Stream机器人</PackageTags>
@@ -19,13 +19,14 @@ CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is ea
 		<FileVersion>1.0.0</FileVersion>
 		<Version>0.1.0</Version>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-		<PackageReference Include="System.Text.Json" Version="6.0.0" />
-	</ItemGroup>
-
 	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 		<None Include="..\Readme.md" Link="Readme.md">
 			<PackagePath>\</PackagePath>
 			<Pack>True</Pack>
@@ -35,6 +36,10 @@ CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is ea
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+		<PackageReference Include="System.Text.Json" Version="6.0.0" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Jusoft.DingtalkStream.Core\Jusoft.DingtalkStream.Core.csproj" />

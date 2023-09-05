@@ -11,7 +11,7 @@
 			C# 版本的钉钉Stream模式API SDK，支持订阅内容扩展，目前有【事件推送】【机器人消息回调】【卡片回调】
 		</Description>
 		<Copyright>上海鸿欢网络科技有限公司</Copyright>
-		<PackageProjectUrl></PackageProjectUrl>
+		<PackageProjectUrl>https://www.nuget.org/packages/Jusoft.DingtalkStream</PackageProjectUrl>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/Yancy1028/Jusoft.DingtalkStream</RepositoryUrl>
 		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream</PackageTags>
@@ -20,8 +20,14 @@
 		<FileVersion>1.0.0</FileVersion>
 		<Version>0.1.0</Version>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<None Include="..\LICENSE">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
 		<None Include="..\Readme.md" Link="Readme.md">
 			<PackagePath>\</PackagePath>
 			<Pack>True</Pack>
