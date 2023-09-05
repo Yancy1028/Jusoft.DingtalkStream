@@ -17,7 +17,7 @@ CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is ea
 		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
 		<PackageIcon>logo.png</PackageIcon>
 		<FileVersion>1.0.0</FileVersion>
-		<Version>0.1.0</Version>
+		<Version>1.0.0</Version>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 	</PropertyGroup>
 

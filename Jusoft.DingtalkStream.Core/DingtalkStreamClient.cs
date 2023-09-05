@@ -45,10 +45,9 @@ namespace Jusoft.DingtalkStream.Core
         /// <returns></returns>
         async Task<GetGatewayEndpointResponse> GetGatewayEndPoint()
         {
-            if (this.Subscriptions.Count == 0)
-            {
-                throw new DingtalkStreamException("尚未注册任何订阅。请先通过RegisterSubscription 进行事件订阅。");
-            }
+            Throws.IfNullOrWhiteSpace(this.options.ClientId, nameof(this.options.ClientId));
+            Throws.IfNullOrWhiteSpace(this.options.ClientSecret, nameof(this.options.ClientSecret));
+            Throws.IfEmptyArray(this.Subscriptions, "尚未注册任何订阅。请先通过RegisterSubscription 进行事件订阅。");
 
             logger.LogInformation("开始请求钉钉访问网关及凭据。");
 
@@ -113,7 +112,7 @@ namespace Jusoft.DingtalkStream.Core
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogInformation("钉钉网关及凭据请求失败。");
-                throw new DingtalkStreamException(await response.Content.ReadAsStringAsync());
+                Throws.InternalException("钉钉网关及凭据请求失败。" + await response.Content.ReadAsStringAsync());
             }
 
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -156,7 +155,7 @@ namespace Jusoft.DingtalkStream.Core
 
             if (webSocketClient.State != WebSocketState.Open)
             {
-                throw new DingtalkStreamException("连接钉钉回调网关失败。连接地址：" + endPoint);
+                Throws.InternalException("连接钉钉回调网关失败。连接地址：" + endPoint);
             }
             logger.LogInformation("钉钉网关 连接成功。");
             // 开始接收消息
@@ -261,7 +260,7 @@ namespace Jusoft.DingtalkStream.Core
                         // 判断是否关闭了消息传输
                         if (messageType == WebSocketMessageType.Close)
                         {
-                            throw new WebSocketException(WebSocketError.ConnectionClosedPrematurely, result.CloseStatusDescription);
+                            Throws.InternalException("接收到了关闭消息传输的指令。" + result.CloseStatusDescription);
                         }
                         // 写入内存流
                         await memoryStream.WriteAsync(buffer.AsMemory(0, result.Count));

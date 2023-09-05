@@ -17,15 +17,7 @@ namespace Jusoft.DingtalkStream.Core
 
             return builder;
         }
-        ///// <summary>
-        ///// 注册机器人回调
-        ///// </summary>
-        //public static IDingtalkStreamBuilder RegisterIMRobotMessageCallback(this IDingtalkStreamBuilder builder)
-        //{
-        //    builder.RegisterSubscription(SubscriptionType.CALLBACK, SubscriptionTopic.IM_ROBOT_MESSAGE_GET);
 
-        //    return builder;
-        //}
         /// <summary>
         /// 注册卡片回调
         /// </summary>
