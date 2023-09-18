@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net6.0;netstandard2.1</TargetFrameworks>
 		<Title>Dingtalk Stream SDK</Title>
-		<GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">True</GeneratePackageOnBuild>
 		<Authors>上海鸿欢网络科技有限公司</Authors>
 		<Company>上海鸿欢网络科技有限公司</Company>
 		<Description>C# 版本的钉钉Stream模式API SDK，支持订阅内容【机器人消息回调】扩展。内部具备 webhook 回复能力。详情请看 demo 使用 DingtalkRobotWebhookUtilites
@@ -16,11 +15,17 @@ CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is ea
 		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream,钉钉Stream机器人</PackageTags>
 		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
 		<PackageIcon>logo.png</PackageIcon>
-		<FileVersion>1.0.0</FileVersion>
-		<Version>0.1.0</Version>
+		<FileVersion>0.1.1</FileVersion>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>$(FileVersion)</Version>
+	</PropertyGroup>
+
 
 	<ItemGroup>
 		<None Include="..\LICENSE">
