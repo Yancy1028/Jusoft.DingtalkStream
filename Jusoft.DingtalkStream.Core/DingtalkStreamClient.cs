@@ -26,8 +26,9 @@ namespace Jusoft.DingtalkStream.Core
         const int BUFFER_SIZE = 1024 * 4;
 
         readonly DingtalkStreamOptions options;
-        readonly ClientWebSocket webSocketClient = new ClientWebSocket();
         readonly ILogger logger;
+        ClientWebSocket webSocketClient;
+
         /// <summary>
         /// 注册的订阅
         /// </summary>
@@ -150,6 +151,8 @@ namespace Jusoft.DingtalkStream.Core
             var endPoint = gatewayEndpointResponse.ToUri();
 
             logger.LogInformation("请求连接钉钉网关。");
+            // 创建新的连接客户端
+            this.webSocketClient = new ClientWebSocket();
             // 进行连接
             await webSocketClient.ConnectAsync(endPoint, CancellationToken.None);
 
@@ -173,11 +176,23 @@ namespace Jusoft.DingtalkStream.Core
             try
             {
                 logger.LogInformation("即将重启【钉钉Stream客户端】。原因：{}", statusDescription);
-                if (webSocketClient.State == WebSocketState.Open)
+
+                var oldWebSocketClient = this.webSocketClient;
+                if (oldWebSocketClient.State == WebSocketState.Open)
                 {
                     logger.LogInformation("正在关闭与【钉钉Stream】服务的连接。");
-                    // 主动断开连接
-                    await webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, CancellationToken.None);
+                    // 10秒后针对旧的连接进行断开及终端的操作
+                    _ = Task.Delay(10 * 1000).ContinueWith(async (task) =>
+                    {
+                        // 主动断开连接
+                        await oldWebSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, CancellationToken.None);
+
+                        // 终止 webSocketClient 的 IO 操作
+                        oldWebSocketClient.Abort();
+                        oldWebSocketClient.Dispose(); // 释放资源
+                        oldWebSocketClient = null;
+                        GC.Collect();// 强制回收资源
+                    });
                 }
                 await Start();
             }
@@ -220,10 +235,7 @@ namespace Jusoft.DingtalkStream.Core
                             if (!isHandled)
                             {
                                 // 触发消息事件
-                                OnMessage?.Invoke(this, new MessageEventHanderArgs(payload.RootElement)
-                                {
-                                    Reply = (data) => webSocketClient.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None)
-                                });
+                                OnMessage?.Invoke(this, new MessageEventHanderArgs(payload.RootElement, webSocketClient));
                             }
                         }
                         return;

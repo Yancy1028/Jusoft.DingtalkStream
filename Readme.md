@@ -14,7 +14,11 @@ C# 版本的钉钉Stream模式API SDK，支持订阅内容扩展，目前有【�
 - 支持 .NET Core3.1、.NET 6.0、.NET Standard 2.1 的任意开发环境
 
 ### 安装
+
+>在Visual Studio 中“工具”——“Nuget包管理器”——"程序包管理器控制台" 执行
+>
 ```bash
+
 // 直接安装 Jusoft.DingtalkStream 包，会自动安装 Jusoft.DingtalkStream.Core 和 Jusoft.DingtalkStream.Robot
 Install-Package Jusoft.DingtalkStream // 集合了所有的回调处理能力
 
