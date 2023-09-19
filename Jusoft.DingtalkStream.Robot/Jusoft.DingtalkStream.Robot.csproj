@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net6.0;netstandard2.1</TargetFrameworks>
+		<Title>Dingtalk Stream SDK</Title>
+		<Authors>上海鸿欢网络科技有限公司</Authors>
+		<Company>上海鸿欢网络科技有限公司</Company>
+		<Description>C# 版本的钉钉Stream模式API SDK，支持订阅内容【机器人消息回调】扩展。内部具备 webhook 回复能力。详情请看 demo 使用 DingtalkRobotWebhookUtilites
+
+CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is easier to access the DingTalk chatbot</Description>
+		<Copyright>上海鸿欢网络科技有限公司</Copyright>
+		<PackageProjectUrl>https://www.nuget.org/packages/Jusoft.DingtalkStream.Robot</PackageProjectUrl>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Yancy1028/Jusoft.DingtalkStream</RepositoryUrl>
+		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream,钉钉Stream机器人</PackageTags>
+		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
+		<PackageIcon>logo.png</PackageIcon>
+		<FileVersion>0.1.1</FileVersion>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	</PropertyGroup>
+
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>$(FileVersion)</Version>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\Readme.md" Link="Readme.md">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+		<None Include="..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+		<PackageReference Include="System.Text.Json" Version="6.0.0" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Jusoft.DingtalkStream.Core\Jusoft.DingtalkStream.Core.csproj" />
+	</ItemGroup>
+</Project>
