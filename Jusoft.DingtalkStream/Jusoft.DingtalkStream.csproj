@@ -26,22 +26,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Version>$(FileVersion)</Version>
 	</PropertyGroup>
-
 	<ItemGroup>
-		<None Include="..\LICENSE">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-		</None>
-		<None Include="..\Readme.md" Link="Readme.md">
-			<PackagePath>\</PackagePath>
-			<Pack>True</Pack>
-		</None>
-		<None Include="..\logo.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
+		<ProjectReference Include="..\Jusoft.DingtalkStream.Core\Jusoft.DingtalkStream.Core.csproj" />
 		<ProjectReference Include="..\Jusoft.DingtalkStream.Robot\Jusoft.DingtalkStream.Robot.csproj" />
 	</ItemGroup>
 

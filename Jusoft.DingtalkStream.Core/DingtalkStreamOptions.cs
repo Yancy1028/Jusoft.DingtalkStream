@@ -30,6 +30,9 @@ namespace Jusoft.DingtalkStream.Core
         /// </summary>
         public List<Subscription> Subscriptions { get; } = new List<Subscription>();
 
+        public Action<DingtalkStreamClient> OnStarted { get; set; }
+        public Action<DingtalkStreamClient, Exception> OnStoped { get; set; }
+
         /// <summary>
         /// 自动回复钉钉的系统消息(ping,disconnect)
         /// </summary>
