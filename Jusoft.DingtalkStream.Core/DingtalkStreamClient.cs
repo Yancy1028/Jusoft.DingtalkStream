@@ -1,3 +1,4 @@
+//#define LOCAL_DEBUG
 using Jusoft.DingtalkStream.Core.Internals;
 
 using Microsoft.Extensions.Logging;
@@ -6,9 +7,11 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
@@ -24,6 +27,7 @@ namespace Jusoft.DingtalkStream.Core
     public class DingtalkStreamClient : IDisposable
     {
         const int BUFFER_SIZE = 1024 * 4;
+        const int TICKET_TIMEOUT_SECONDS = 90;
 
         readonly DingtalkStreamOptions options;
         readonly ILogger logger;
@@ -60,6 +64,14 @@ namespace Jusoft.DingtalkStream.Core
         /// <returns></returns>
         async Task<GetGatewayEndpointResponse> GetGatewayEndPoint()
         {
+#if DEBUG && LOCAL_DEBUG
+            var gatewayEndpointResponse = new GetGatewayEndpointResponse();
+
+            gatewayEndpointResponse.Ticket = "12345";
+            gatewayEndpointResponse.EndPoint = "ws://localhost:12345";
+
+            return await Task.FromResult(gatewayEndpointResponse);
+#else
             Throws.IfNullOrWhiteSpace(this.options.ClientId, nameof(this.options.ClientId));
             Throws.IfNullOrWhiteSpace(this.options.ClientSecret, nameof(this.options.ClientSecret));
             Throws.IfEmptyArray(this.Subscriptions, "尚未注册任何订阅。请先通过RegisterSubscription 进行事件订阅。");
@@ -148,6 +160,7 @@ namespace Jusoft.DingtalkStream.Core
             }
 
             return gatewayEndpointResponse;
+#endif
         }
 
         /// <summary>
@@ -157,23 +170,41 @@ namespace Jusoft.DingtalkStream.Core
         public async Task Start()
         {
             logger.LogInformation("开始启动新的【钉钉Stream客户端】。");
-
-            // 获取钉钉回调网关连接信息
-            var gatewayEndpointResponse = await GetGatewayEndPoint();
-            // 生成websocket 连接地址
-            var endPoint = gatewayEndpointResponse.ToUri();
-
-            logger.LogInformation("请求连接钉钉网关。");
-            // 创建新的连接客户端
-            this.webSocketClient = new ClientWebSocket();
             var cancellationTokenSource = new CancellationTokenSource();
-            // 进行连接
-            await webSocketClient.ConnectAsync(endPoint, cancellationTokenSource.Token);
+            var ticketTimeoutSeconds = TICKET_TIMEOUT_SECONDS - 10;// ticket 过期时长的偏移值。
 
-            if (webSocketClient.State != WebSocketState.Open)
+            Stopwatch sw = new Stopwatch();// 计时器
+            int retry = 0; //重试次数
+
+            Uri endPoint = null;
+            do
             {
-                Throws.InternalException("连接钉钉回调网关失败。连接地址：" + endPoint);
-            }
+                try
+                {
+                    if (endPoint == null || sw.Elapsed.TotalSeconds > ticketTimeoutSeconds)
+                    {
+                        // 重连期间如果超过ticket有效期时还未连接成功，则重新获取ticket
+                        // 获取钉钉回调网关连接信息
+                        var gatewayEndpointResponse = await GetGatewayEndPoint();
+                        endPoint = gatewayEndpointResponse.ToUri();
+                        sw.Restart();// 重新计时
+                    }
+                    // 生成websocket 连接地址
+                    logger.LogInformation("请求连接钉钉网关。");
+
+                    // 创建新的连接客户端
+                    this.webSocketClient = new ClientWebSocket();
+                    // 进行连接
+                    await this.webSocketClient.ConnectAsync(endPoint, cancellationTokenSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "建立 WebSocket 连接时发生了异常。");
+                    logger.LogInformation($"尝试第{++retry}次重连。");
+                }
+            } while (this.webSocketClient.State != WebSocketState.Open);
+            sw.Stop();
+
             logger.LogInformation("钉钉网关 连接成功。");
             // 开始接收消息
             _ = Task.Run(ReceiveHandler, cancellationTokenSource.Token);
@@ -216,15 +247,30 @@ namespace Jusoft.DingtalkStream.Core
                             }
                             // 写入内存流
                             await memoryStream.WriteAsync(buffer.AsMemory(0, result.Count), cancellationTokenSource.Token);
-                        } while (!result.EndOfMessage && !cancellationTokenSource.IsCancellationRequested);
+                        } while (!cancellationTokenSource.IsCancellationRequested && !result.EndOfMessage);
                         // 设置内存流指针到开始位置
                         memoryStream.Seek(0, SeekOrigin.Begin);
 
                         _ = MessageHandler(messageType, memoryStream.ToArray());
                     }
+                    catch (WebSocketException ex)
+                    {
+                        if (ex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
+                        {
+                            logger.LogWarning(ex, "钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
+                            await this.Restart("钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
+                            return;
+                        }
+                        else
+                        {
+                            logger.LogError(ex, "接收消息时发生了异常。");
+                            continue;
+                        }
+                    }
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "接收消息时发生了异常。");
+                        continue;
                     }
                 }
             }
@@ -295,12 +341,12 @@ namespace Jusoft.DingtalkStream.Core
                 {
                     case "ping":// 探活
                         var replyMessageByts = await DingtalkStreamUtilities.CreateReplyMessage(jsonElmMessageId.GetString(), jsonElmData.GetString());
-                        await webSocketClient.SendAsync(replyMessageByts, WebSocketMessageType.Text, true, cancellationTokenSource.Token);
+                        await webSocketClient.SendAsync(replyMessageByts, WebSocketMessageType.Text, true, CancellationToken.None);
                         return true;
                     case "disconnect":
                         // 断连请求 topic 为 disconnect,， 收到断连请求后，连接将不会再有新的下行消息推送下来， 此期间客户端依然可以通过此连接响应正在处理的请求。 客户端收到断连请求之后，需要发起新的注册长连接和建连请求，原有的ticket无法复用。客户端不需要对此推送信息做任何响应， 服务端在静默10s之后会主动断开 tcp 连接。
                         //! 对于钉钉侧，可能因为各种未知原因，会主动断开连接，此时需要重新注册连接
-                        await this.Restart("钉钉服务要求客户端进行重连");
+                        await this.Restart("钉钉Stream服务端要求客户端进行重连");
                         return true;
                 }
                 return false;
@@ -318,22 +364,18 @@ namespace Jusoft.DingtalkStream.Core
                 logger.LogInformation("即将重启【钉钉Stream客户端】。原因：{}", statusDescription);
 
                 this.cancellationTokenSource.Cancel();// 取消正在进行的一些异步任务；
-                var oldWebSocketClient = this.webSocketClient;
-                if (oldWebSocketClient.State == WebSocketState.Open)
+                if (this.webSocketClient.State == WebSocketState.Open)
                 {
                     logger.LogInformation("正在关闭与【钉钉Stream】服务的连接。");
-                    // 10秒后针对旧的连接进行断开及终端的操作，在此期间内，还可以发送剩下的消息
-                    _ = Task.Delay(10 * 1000).ContinueWith(async (task) =>
-                    {
-                        // 主动断开连接
-                        await oldWebSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, CancellationToken.None);
 
-                        // 终止 webSocketClient 的 IO 操作
-                        oldWebSocketClient.Abort();
-                        oldWebSocketClient.Dispose(); // 释放资源
-                        oldWebSocketClient = null;
-                        GC.Collect();// 强制回收资源
-                    });
+                    await Task.Yield();// 尽可能让其他任务在完毕之前快点完成
+                    // 主动断开连接
+                    await this.webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, CancellationToken.None);
+                    // 终止 webSocketClient 的 IO 操作
+                    await Task.Yield();// 尽可能在断开IO 操作之前，让其他任务快点完成
+                    this.webSocketClient.Abort();
+                    this.webSocketClient.Dispose(); // 释放资源
+                    GC.Collect();// 强制回收资源
                 }
                 await Start();
             }

@@ -25,7 +25,7 @@ namespace Jusoft.DingtalkStream.Core
         /// </summary>
         public Task Reply(byte[] data)
         {
-            return this.clientWebSocket?.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
+            return this.clientWebSocket.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
         }
     }
 }

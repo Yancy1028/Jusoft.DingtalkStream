@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jusoft.DingtalkStream.Core"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jusoft.DingtalkStream", "Jusoft.DingtalkStream\Jusoft.DingtalkStream.csproj", "{6F56A115-4DB4-4248-A82D-67BC2D00E3B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationStreamService", "SimulationStreamService\SimulationStreamService.csproj", "{2F1DCC6E-06C2-4A25-90DE-7E38826994A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{6F56A115-4DB4-4248-A82D-67BC2D00E3B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F56A115-4DB4-4248-A82D-67BC2D00E3B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F56A115-4DB4-4248-A82D-67BC2D00E3B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F1DCC6E-06C2-4A25-90DE-7E38826994A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F1DCC6E-06C2-4A25-90DE-7E38826994A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F1DCC6E-06C2-4A25-90DE-7E38826994A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F1DCC6E-06C2-4A25-90DE-7E38826994A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
