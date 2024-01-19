@@ -23,7 +23,7 @@ namespace Jusoft.DingtalkStream.Core.Internals
         // Virtual 虚拟的
         // vmware VMWARE
         // Bluetooth 蓝牙
-        static readonly IReadOnlyCollection<string> VirtualNetworkNames = new string[] { "vmnetadapter", "Virtual", "vmware", "ppoe", "bthpan", "ndisip", "sinforvnic", "vpn", "TeamViewer", "Bluetooth" };
+        static readonly IReadOnlyCollection<string> VirtualNetworkNames = new string[] { "vmnetadapter" , "Virtual" , "vmware" , "ppoe" , "bthpan" , "ndisip" , "sinforvnic" , "vpn" , "TeamViewer" , "Bluetooth" };
         /// <summary>
         /// 获取当前SDK的版本信息
         /// </summary>
@@ -39,7 +39,7 @@ namespace Jusoft.DingtalkStream.Core.Internals
         /// <returns></returns>
         public static string GetOSVersion()
         {
-            var osName = Environment.OSVersion.Platform.ToString().Replace(" ", "");
+            var osName = Environment.OSVersion.Platform.ToString().Replace(" " , "");
             var osVersion = Environment.OSVersion.Version;
             return $"{osName}/{osVersion.Major}.{osVersion.Minor}";
         }
@@ -78,38 +78,47 @@ namespace Jusoft.DingtalkStream.Core.Internals
         /// <returns></returns>
         public static IEnumerable<IPAddress> GetLocalIps()
         {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
 
             var list = new List<IPAddress>();
 
-            foreach (var item in networkInterfaces)
+            foreach (var networkInterface in interfaces)
             {
-                // 跳过没有速率的
-                if (item.Speed < 0) continue;
+                // 跳过未启用的网卡
+                if (networkInterface.OperationalStatus != OperationalStatus.Up)
+                    continue;
                 // 跳过回环
-                if (item.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+                if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                    continue;
                 // 跳过虚拟网卡
-                if (VirtualNetworkNames.Any(networkName => item.Description.Contains(networkName, StringComparison.OrdinalIgnoreCase))) continue;
+                if (VirtualNetworkNames.Any(networkName => networkInterface.Description.Contains(networkName , StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                // 跳过没有速率的
+                if (networkInterface.Speed < 0)
+                    continue;
 
-                var ip = item.GetIPProperties();
-                //ip.GatewayAddresses;// 网关服务器地址
-                //ip.DhcpServerAddresses // DHCP 服务器地址
-                //ip.DnsAddresses //DNS 掩码信息
-                //ip.UnicastAddresses;// IP信息
-                foreach (var unicastAddress in ip.UnicastAddresses)
+                var ipProperties = networkInterface.GetIPProperties();
+                //ipProperties.GatewayAddresses;// 网关服务器地址
+                //ipProperties.DhcpServerAddresses // DHCP 服务器地址
+                //ipProperties.DnsAddresses //DNS 掩码信息
+                //ipProperties.UnicastAddresses;// IP信息
+                foreach (var unicastAddress in ipProperties.UnicastAddresses)
                 {
                     // 判断如果是指示的任意地址，则跳过
-                    if (unicastAddress.Address == IPAddress.Any) continue;
-                    //! 判断如果非IPV4的地址，则跳过
-                    if (unicastAddress.Address.AddressFamily != AddressFamily.InterNetwork) continue;
+                    if (unicastAddress.Address == IPAddress.Any)
+                        continue;
+                    //! 判断如果非IPV4 且 非IPV6 的地址，则跳过
+                    if (unicastAddress.Address.AddressFamily != AddressFamily.InterNetwork || unicastAddress.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                        continue;
 
                     // 判断如果是苹果操作系统，则直接返回网卡地址，不进行 DuplicateAddressDetectionState 的校验【貌似苹果操作系统不支持】
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
+                        // Unix 系统上的特定代码
                         yield return unicastAddress.Address;
                     }
                     // 其他操作系统情况则增加 DuplicateAddressDetectionState 的校验，仅取有效的地址
-                    else if (unicastAddress.DuplicateAddressDetectionState == DuplicateAddressDetectionState.Preferred)
+                    else if (getDuplicateAddressDetectionState(unicastAddress) == DuplicateAddressDetectionState.Preferred)
                     {
                         yield return unicastAddress.Address;
                     }
@@ -118,6 +127,19 @@ namespace Jusoft.DingtalkStream.Core.Internals
                 }
             }
 
+            static DuplicateAddressDetectionState getDuplicateAddressDetectionState(UnicastIPAddressInformation unicastAddress)
+            {
+                try
+                {
+                    //issue@1 linux 下不支持 DuplicateAddressDetectionState 的问题修复
+                    return unicastAddress.DuplicateAddressDetectionState;
+                }
+                catch
+                {
+                    // 如果上面的代码出现异常，则直接认为是有效的地址
+                    return DuplicateAddressDetectionState.Preferred;
+                }
+            }
         }
     }
 }
