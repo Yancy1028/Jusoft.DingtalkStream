@@ -52,7 +52,7 @@ namespace Jusoft.DingtalkStream.Core
         public event EventHandler<Exception> OnStoped;
 
 
-        public DingtalkStreamClient(IOptions<DingtalkStreamOptions> options, ILogger<DingtalkStreamClient> logger)
+        public DingtalkStreamClient(IOptions<DingtalkStreamOptions> options , ILogger<DingtalkStreamClient> logger)
         {
             this.logger = logger;
             this.options = options.Value;
@@ -72,9 +72,9 @@ namespace Jusoft.DingtalkStream.Core
 
             return await Task.FromResult(gatewayEndpointResponse);
 #else
-            Throws.IfNullOrWhiteSpace(this.options.ClientId, nameof(this.options.ClientId));
-            Throws.IfNullOrWhiteSpace(this.options.ClientSecret, nameof(this.options.ClientSecret));
-            Throws.IfEmptyArray(this.Subscriptions, "尚未注册任何订阅。请先通过RegisterSubscription 进行事件订阅。");
+            Throws.IfNullOrWhiteSpace(this.options.ClientId , nameof(this.options.ClientId));
+            Throws.IfNullOrWhiteSpace(this.options.ClientSecret , nameof(this.options.ClientSecret));
+            Throws.IfEmptyArray(this.Subscriptions , "尚未注册任何订阅。请先通过RegisterSubscription 进行事件订阅。");
 
             logger.LogInformation("开始请求钉钉访问网关及凭据。");
 
@@ -86,8 +86,8 @@ namespace Jusoft.DingtalkStream.Core
             using (var writer = new Utf8JsonWriter(stream))
             {
                 writer.WriteStartObject();
-                writer.WriteString("clientId", this.options.ClientId);
-                writer.WriteString("clientSecret", this.options.ClientSecret);
+                writer.WriteString("clientId" , this.options.ClientId);
+                writer.WriteString("clientSecret" , this.options.ClientSecret);
                 // 生成订阅信息
                 writer.WritePropertyName("subscriptions");
                 writer.WriteStartArray();
@@ -96,16 +96,16 @@ namespace Jusoft.DingtalkStream.Core
                 if (this.Subscriptions.Any(a => a.Type == "EVENT"))
                 {
                     writer.WriteStartObject();
-                    writer.WriteString("type", "EVENT");
-                    writer.WriteString("topic", "*");
+                    writer.WriteString("type" , "EVENT");
+                    writer.WriteString("topic" , "*");
                     writer.WriteEndObject();
                 }
                 // 针对非 EVENT 的类型，需要明确订阅的 topic 信息
                 foreach (var subscription in this.Subscriptions.Where(w => w.Type != "EVENT"))
                 {
                     writer.WriteStartObject();
-                    writer.WriteString("type", subscription.Type);
-                    writer.WriteString("topic", subscription.Topic);
+                    writer.WriteString("type" , subscription.Type);
+                    writer.WriteString("topic" , subscription.Topic);
                     writer.WriteEndObject();
                 }
                 writer.WriteEndArray();
@@ -115,13 +115,17 @@ namespace Jusoft.DingtalkStream.Core
                 {
                     userAgent = $"{userAgent} {options.UA}";
                 }
-                writer.WriteString("ua", userAgent);
+                writer.WriteString("ua" , userAgent);
 
                 // 将本地的多个IP 组合写入
-                var localIp = string.Join(',', Utilities.GetLocalIps());
-                if (localIp != null)
+                var localIp = string.Join(',' , Utilities.GetLocalIps());
+                if (string.IsNullOrWhiteSpace(localIp))
                 {
-                    writer.WriteString("localIp", localIp);
+                    writer.WriteString("localIp" , "Unknown");
+                }
+                else
+                {
+                    writer.WriteString("localIp" , localIp);
                 }
                 writer.WriteEndObject();
 
@@ -129,12 +133,12 @@ namespace Jusoft.DingtalkStream.Core
 
                 jsonContentStr = Encoding.UTF8.GetString(stream.GetBuffer());
             }
-            logger.LogDebug("请求地址：{}\r\n请求方式：POST\r\nBody：{}", Utilities.DINGTALK_GATEWAY_ENDPOINT, jsonContentStr);
+            logger.LogDebug("请求地址：{}\r\n请求方式：POST\r\nBody：{}" , Utilities.DINGTALK_GATEWAY_ENDPOINT , jsonContentStr);
 
             #endregion
-            var requestBodyContent = new StringContent(jsonContentStr, Encoding.UTF8, mediaType: "application/json");
+            var requestBodyContent = new StringContent(jsonContentStr , Encoding.UTF8 , mediaType: "application/json");
 
-            var response = await httpHandler.PostAsync(Utilities.DINGTALK_GATEWAY_ENDPOINT, requestBodyContent);
+            var response = await httpHandler.PostAsync(Utilities.DINGTALK_GATEWAY_ENDPOINT , requestBodyContent);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -144,17 +148,17 @@ namespace Jusoft.DingtalkStream.Core
 
             var responseContent = await response.Content.ReadAsStringAsync();
             logger.LogInformation("钉钉网关及凭据请求成功");
-            logger.LogDebug("网关及凭据信息：{}", responseContent);
+            logger.LogDebug("网关及凭据信息：{}" , responseContent);
 
             var payload = JsonDocument.Parse(responseContent);
 
             var gatewayEndpointResponse = new GetGatewayEndpointResponse();
 
-            if (payload.RootElement.TryGetProperty("endpoint", out JsonElement jsonElmEndPoint))
+            if (payload.RootElement.TryGetProperty("endpoint" , out JsonElement jsonElmEndPoint))
             {
                 gatewayEndpointResponse.EndPoint = jsonElmEndPoint.GetString();
             }
-            if (payload.RootElement.TryGetProperty("ticket", out JsonElement jsonElmTicket))
+            if (payload.RootElement.TryGetProperty("ticket" , out JsonElement jsonElmTicket))
             {
                 gatewayEndpointResponse.Ticket = jsonElmTicket.GetString();
             }
@@ -195,11 +199,11 @@ namespace Jusoft.DingtalkStream.Core
                     // 创建新的连接客户端
                     this.webSocketClient = new ClientWebSocket();
                     // 进行连接
-                    await this.webSocketClient.ConnectAsync(endPoint, cancellationTokenSource.Token);
+                    await this.webSocketClient.ConnectAsync(endPoint , cancellationTokenSource.Token);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "建立 WebSocket 连接时发生了异常。");
+                    logger.LogError(ex , "建立 WebSocket 连接时发生了异常。");
                     logger.LogInformation($"尝试第{++retry}次重连。");
                 }
             } while (this.webSocketClient.State != WebSocketState.Open);
@@ -207,11 +211,11 @@ namespace Jusoft.DingtalkStream.Core
 
             logger.LogInformation("钉钉网关 连接成功。");
             // 开始接收消息
-            _ = Task.Run(ReceiveHandler, cancellationTokenSource.Token);
+            _ = Task.Run(ReceiveHandler , cancellationTokenSource.Token);
 
             this.cancellationTokenSource = cancellationTokenSource;
 
-            OnStarted?.Invoke(this, EventArgs.Empty);
+            OnStarted?.Invoke(this , EventArgs.Empty);
 
             logger.LogInformation("【钉钉Stream客户端】已成功启动。");
 
@@ -234,7 +238,7 @@ namespace Jusoft.DingtalkStream.Core
                         using var memoryStream = new MemoryStream();// 缓存接收到的消息数据
                         do
                         {
-                            result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationTokenSource.Token);
+                            result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer) , cancellationTokenSource.Token);
 
                             messageType = result.MessageType;
                             // 判断是否关闭了消息传输
@@ -246,30 +250,30 @@ namespace Jusoft.DingtalkStream.Core
                                 //Throws.InternalException("接收到了关闭消息传输的指令。" + result.CloseStatusDescription);
                             }
                             // 写入内存流
-                            await memoryStream.WriteAsync(buffer.AsMemory(0, result.Count), cancellationTokenSource.Token);
+                            await memoryStream.WriteAsync(buffer.AsMemory(0 , result.Count) , cancellationTokenSource.Token);
                         } while (!cancellationTokenSource.IsCancellationRequested && !result.EndOfMessage);
                         // 设置内存流指针到开始位置
-                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        memoryStream.Seek(0 , SeekOrigin.Begin);
 
-                        _ = MessageHandler(messageType, memoryStream.ToArray());
+                        _ = MessageHandler(messageType , memoryStream.ToArray());
                     }
                     catch (WebSocketException ex)
                     {
                         if (ex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
                         {
-                            logger.LogWarning(ex, "钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
+                            logger.LogWarning(ex , "钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
                             await this.Restart("钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
                             return;
                         }
                         else
                         {
-                            logger.LogError(ex, "接收消息时发生了异常。");
+                            logger.LogError(ex , "接收消息时发生了异常。");
                             continue;
                         }
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "接收消息时发生了异常。");
+                        logger.LogError(ex , "接收消息时发生了异常。");
                         continue;
                     }
                 }
@@ -281,7 +285,7 @@ namespace Jusoft.DingtalkStream.Core
             /// <param name="socketMessageType"></param>
             /// <param name="messageByts"></param>
             /// <returns></returns>
-            async Task MessageHandler(WebSocketMessageType socketMessageType, byte[] messageByts)
+            async Task MessageHandler(WebSocketMessageType socketMessageType , byte[] messageByts)
             {
                 try
                 {
@@ -290,7 +294,7 @@ namespace Jusoft.DingtalkStream.Core
                         case WebSocketMessageType.Text:
                             {
                                 var payload = JsonDocument.Parse(messageByts);
-                                logger.LogDebug("收到消息：{}", payload.RootElement.ToString());
+                                logger.LogDebug("收到消息：{}" , payload.RootElement.ToString());
 
                                 var jsonElmSpecVersion = payload.RootElement.GetProperty("specVersion");// 协议版本
                                 var jsonElmType = payload.RootElement.GetProperty("type"); // 推送数据类型。SYSTEM: 系统数据; EVENT：事件推送; CALLBACK：回调推送
@@ -309,7 +313,7 @@ namespace Jusoft.DingtalkStream.Core
                                 if (!isHandled)
                                 {
                                     // 触发消息事件
-                                    OnMessage?.Invoke(this, new MessageEventHanderArgs(payload.RootElement, webSocketClient));
+                                    OnMessage?.Invoke(this , new MessageEventHanderArgs(payload.RootElement , webSocketClient));
                                 }
                             }
                             return;
@@ -320,7 +324,7 @@ namespace Jusoft.DingtalkStream.Core
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "处理消息时发生了异常。");
+                    logger.LogError(ex , "处理消息时发生了异常。");
                 }
             }
 
@@ -340,8 +344,8 @@ namespace Jusoft.DingtalkStream.Core
                 switch (jsonElmTopic.GetString())
                 {
                     case "ping":// 探活
-                        var replyMessageByts = await DingtalkStreamUtilities.CreateReplyMessage(jsonElmMessageId.GetString(), jsonElmData.GetString());
-                        await webSocketClient.SendAsync(replyMessageByts, WebSocketMessageType.Text, true, CancellationToken.None);
+                        var replyMessageByts = await DingtalkStreamUtilities.CreateReplyMessage(jsonElmMessageId.GetString() , jsonElmData.GetString());
+                        await webSocketClient.SendAsync(replyMessageByts , WebSocketMessageType.Text , true , CancellationToken.None);
                         return true;
                     case "disconnect":
                         // 断连请求 topic 为 disconnect,， 收到断连请求后，连接将不会再有新的下行消息推送下来， 此期间客户端依然可以通过此连接响应正在处理的请求。 客户端收到断连请求之后，需要发起新的注册长连接和建连请求，原有的ticket无法复用。客户端不需要对此推送信息做任何响应， 服务端在静默10s之后会主动断开 tcp 连接。
@@ -361,7 +365,7 @@ namespace Jusoft.DingtalkStream.Core
         {
             try
             {
-                logger.LogInformation("即将重启【钉钉Stream客户端】。原因：{}", statusDescription);
+                logger.LogInformation("即将重启【钉钉Stream客户端】。原因：{}" , statusDescription);
 
                 this.cancellationTokenSource.Cancel();// 取消正在进行的一些异步任务；
                 if (this.webSocketClient.State == WebSocketState.Open)
@@ -370,7 +374,7 @@ namespace Jusoft.DingtalkStream.Core
 
                     await Task.Yield();// 尽可能让其他任务在完毕之前快点完成
                     // 主动断开连接
-                    await this.webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, statusDescription, CancellationToken.None);
+                    await this.webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure , statusDescription , CancellationToken.None);
                     // 终止 webSocketClient 的 IO 操作
                     await Task.Yield();// 尽可能在断开IO 操作之前，让其他任务快点完成
                     this.webSocketClient.Abort();
@@ -381,8 +385,8 @@ namespace Jusoft.DingtalkStream.Core
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "重启【钉钉Stream客户端】时发生了异常，程序已停止。");
-                OnStoped?.Invoke(this, ex);
+                logger.LogError(ex , "重启【钉钉Stream客户端】时发生了异常，程序已停止。");
+                OnStoped?.Invoke(this , ex);
             }
         }
 
