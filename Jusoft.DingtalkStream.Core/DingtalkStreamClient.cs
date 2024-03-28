@@ -211,7 +211,8 @@ namespace Jusoft.DingtalkStream.Core
 
             logger.LogInformation("钉钉网关 连接成功。");
             // 开始接收消息
-            _ = Task.Run(ReceiveHandler , cancellationTokenSource.Token);
+            //_ = Task.Run(ReceiveHandler , cancellationTokenSource.Token);
+            _ = Task.Factory.StartNew(ReceiveHandler , cancellationTokenSource.Token , TaskCreationOptions.LongRunning , TaskScheduler.Default);
 
             this.cancellationTokenSource = cancellationTokenSource;
 
