@@ -2,6 +2,25 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net6.0;netstandard2.1</TargetFrameworks>
+		<Title>Dingtalk Stream SDK</Title>
+		<Authors>上海鸿欢网络科技有限公司</Authors>
+		<Company>上海鸿欢网络科技有限公司</Company>
+		<Description>
+			CSharp SDK for Dingtalk Stream Mode API,Compared with the webhook mode, it is easier to access the DingTalk chatbot
+
+			C# 版本的钉钉Stream模式API SDK，支持订阅内容扩展，目前有【事件推送】【机器人消息回调】【卡片回调】
+		</Description>
+		<Copyright>上海鸿欢网络科技有限公司</Copyright>
+		<PackageProjectUrl>https://www.nuget.org/packages/Jusoft.DingtalkStream.Event</PackageProjectUrl>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Yancy1028/Jusoft.DingtalkStream</RepositoryUrl>
+		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream</PackageTags>
+		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
+		<PackageIcon>logo.png</PackageIcon>
+		<FileVersion>0.1.5</FileVersion>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<Version>1.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
