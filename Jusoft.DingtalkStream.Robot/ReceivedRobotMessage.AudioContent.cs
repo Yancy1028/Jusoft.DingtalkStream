@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Jusoft.DingtalkStream.Robot
+﻿namespace Jusoft.DingtalkStream.Robot
 {
     public partial class ReceivedRobotMessage
     {
@@ -14,7 +10,7 @@ namespace Jusoft.DingtalkStream.Robot
             /// <summary>
             /// 语音的时长，单位是（毫秒）。
             /// </summary>
-            public long Duration { get; internal set; }
+            public long? Duration { get; internal set; }
             /// <summary>
             /// 文件的下载码，用于换取下载文件的二进制文件
             /// <list type="bullet">

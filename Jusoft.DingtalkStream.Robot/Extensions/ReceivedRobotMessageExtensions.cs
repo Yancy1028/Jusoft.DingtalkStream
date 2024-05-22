@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.Json;
 
 namespace Jusoft.DingtalkStream.Robot
 {
@@ -34,10 +33,12 @@ namespace Jusoft.DingtalkStream.Robot
                 throw new ArgumentException("消息类型不是语音消息");
             }
             var content = robotMessage.Payload.GetProperty("content");
+
+            content.TryGetProperty("duration", out JsonElement duration);
             return new ReceivedRobotMessage.AudioContent
             {
                 DownloadCode = content.GetProperty("downloadCode").GetString(),
-                Duration = content.GetProperty("duration").GetInt64(),
+                Duration = duration.ValueKind == JsonValueKind.Undefined ? (long?)null : duration.GetInt64(),
                 Recognition = content.GetProperty("recognition").GetString(),
             };
         }
@@ -56,7 +57,7 @@ namespace Jusoft.DingtalkStream.Robot
             return new ReceivedRobotMessage.PictureContent
             {
                 DownloadCode = content.GetProperty("downloadCode").GetString(),
-                PictureDownloadCode = content.GetProperty("pictureDownloadCode")  .GetString(),
+                PictureDownloadCode = content.GetProperty("pictureDownloadCode").GetString(),
             };
 
         }

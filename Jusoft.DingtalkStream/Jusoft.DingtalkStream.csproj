@@ -20,7 +20,7 @@
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.0.0</Version>
+		<Version>0.1.6</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -43,8 +43,8 @@
 		<Version>$(FileVersion)</Version>
 	</PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Jusoft.DingtalkStream.Core\Jusoft.DingtalkStream.Core.csproj" />
-		<ProjectReference Include="..\Jusoft.DingtalkStream.Robot\Jusoft.DingtalkStream.Robot.csproj" />
+		<ProjectReference Include="..\Jusoft.DingtalkStream.Core\Jusoft.DingtalkStream.Core.csproj"/>
+		<ProjectReference Include="..\Jusoft.DingtalkStream.Robot\Jusoft.DingtalkStream.Robot.csproj"/>
 	</ItemGroup>
 
 </Project>
