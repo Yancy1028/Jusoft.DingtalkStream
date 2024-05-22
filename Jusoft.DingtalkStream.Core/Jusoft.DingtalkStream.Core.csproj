@@ -16,9 +16,9 @@ C# 版本的钉钉Stream模式API SDK，支持订阅内容扩展，目前有【�
 		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
 		<PackageIcon>logo.png</PackageIcon>
 		<FileVersion>0.1.4</FileVersion>
-		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyVersion>1.0.1</AssemblyVersion>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">

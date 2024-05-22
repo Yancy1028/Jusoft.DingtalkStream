@@ -1,12 +1,6 @@
 ﻿using Jusoft.DingtalkStream.Core;
 using Jusoft.DingtalkStream.Robot;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DingtalkStreamDemo
 {
     internal class DefaultMessageHandler : IDingtalkStreamMessageHandler
@@ -35,7 +29,7 @@ namespace DingtalkStreamDemo
                         // 通过消息类型 robotMessage.MsgType 来识别具体的消息内容
 
                         // 获取语音消息内容
-                        //var content=robotMessage.GetAudioContent();
+                        var content = robotMessage.GetAudioContent();
                         // 获取富文件消息内容
                         //var content=robotMessage.GetFileContent();
                         // 获取富图片消息内容
