@@ -4,7 +4,7 @@ using Jusoft.DingtalkStream.Core;
 
 
 IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
+    .ConfigureServices((context , services) =>
     {
         services.AddDingtalkStream(options =>
         {
@@ -25,15 +25,16 @@ IHost host = Host.CreateDefaultBuilder(args)
             {
                 Console.WriteLine("订阅程序已启动。");
             };
-            options.OnStoped = (client, ex) =>
+            options.OnStoped = (client , ex) =>
             {
                 // ex : 停止的异常原因
                 Console.WriteLine("订阅程序已停止运行。");
             };
 
 
-        }).RegisterEventSubscription()  // 注册事件订阅 （可选）
-          .RegisterCardInstanceCallback()// 注册卡片回调 （可选）
+        })
+          //.RegisterEventSubscription()  // 注册事件订阅 （可选）
+          //.RegisterCardInstanceCallback()// 注册卡片回调 （可选）
           .RegisterIMRobotMessageCallback()// 注册机器人消息回调 （可选） // 需要添加 Jusoft.DingtalkStream.Robot 包
           .AddMessageHandler<DefaultMessageHandler>() //添加消息处理服务
           .AddHostServices();// 添加主机服务，用于启动 DingtalkStreamClient

@@ -26,6 +26,11 @@ namespace Jusoft.DingtalkStream.Core
     /// </summary>
     public class DingtalkStreamClient : IDisposable
     {
+        /// <summary>
+        /// 请求接口使用的通道
+        /// </summary>
+        readonly static HttpClient Backchannel = new HttpClient();
+
         const int BUFFER_SIZE = 1024 * 4;
         const int TICKET_TIMEOUT_SECONDS = 90;
 
@@ -33,6 +38,10 @@ namespace Jusoft.DingtalkStream.Core
         readonly ILogger logger;
         ClientWebSocket webSocketClient;
         CancellationTokenSource cancellationTokenSource;
+
+        public ClientWebSocket WebSocketClient => webSocketClient;
+
+
 
         /// <summary>
         /// 注册的订阅
@@ -78,7 +87,6 @@ namespace Jusoft.DingtalkStream.Core
 
             logger.LogInformation("开始请求钉钉访问网关及凭据。");
 
-            using var httpHandler = new HttpClient();
             #region 构造请求用的JSON 参数
             var jsonContentStr = string.Empty;
 
@@ -138,7 +146,7 @@ namespace Jusoft.DingtalkStream.Core
             #endregion
             var requestBodyContent = new StringContent(jsonContentStr , Encoding.UTF8 , mediaType: "application/json");
 
-            var response = await httpHandler.PostAsync(Utilities.DINGTALK_GATEWAY_ENDPOINT , requestBodyContent);
+            var response = await Backchannel.PostAsync(Utilities.DINGTALK_GATEWAY_ENDPOINT , requestBodyContent);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -262,8 +270,8 @@ namespace Jusoft.DingtalkStream.Core
                     {
                         if (ex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
                         {
-                            logger.LogWarning(ex , "钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
-                            await this.Restart("钉钉服务器断开连接，可能钉钉Stream服务端正在更新重启。");
+                            logger.LogWarning(ex , "与钉钉服务器断开连接，请检查您的网络是否发生异常，也可能钉钉Stream服务端正在更新重启。");
+                            await this.Restart("与钉钉服务器断开连接，请检查您的网络是否发生异常，也可能钉钉Stream服务端正在更新重启。");
                             return;
                         }
                         else
@@ -346,6 +354,7 @@ namespace Jusoft.DingtalkStream.Core
                 {
                     case "ping":// 探活
                         var replyMessageByts = await DingtalkStreamUtilities.CreateReplyMessage(jsonElmMessageId.GetString() , jsonElmData.GetString());
+                        logger.LogDebug("回复消息：{}" , Encoding.UTF8.GetString(replyMessageByts));
                         await webSocketClient.SendAsync(replyMessageByts , WebSocketMessageType.Text , true , CancellationToken.None);
                         return true;
                     case "disconnect":
