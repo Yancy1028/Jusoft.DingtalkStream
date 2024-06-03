@@ -16,7 +16,7 @@
 		<PackageTags>Dingtalk,DigntalkStream,钉钉推送,钉钉Stream</PackageTags>
 		<PackageReleaseNotes>Dingtalk Stream SDK</PackageReleaseNotes>
 		<PackageIcon>logo.png</PackageIcon>
-		<FileVersion>0.1.5</FileVersion>
+		<FileVersion>0.1.6</FileVersion>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
