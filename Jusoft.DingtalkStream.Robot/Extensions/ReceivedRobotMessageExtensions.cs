@@ -34,12 +34,20 @@ namespace Jusoft.DingtalkStream.Robot
                 throw new ArgumentException("消息类型不是语音消息");
             }
             var content = robotMessage.Payload.GetProperty("content");
-            return new ReceivedRobotMessage.AudioContent
+
+            var audioContent = new ReceivedRobotMessage.AudioContent
             {
-                DownloadCode = content.GetProperty("downloadCode").GetString(),
-                Duration = content.GetProperty("duration").GetInt64(),
-                Recognition = content.GetProperty("recognition").GetString(),
+                DownloadCode = content.GetProperty("downloadCode").GetString() ,
+                Recognition = content.GetProperty("recognition").GetString() ,
             };
+            // duration 有可能性不返回
+            if (content.TryGetProperty("duration" , out var jsonElmDuration))
+            {
+                audioContent.Duration = jsonElmDuration.GetInt64();
+            }
+
+
+            return audioContent;
         }
         /// <summary>
         /// 获取图片消息内容
@@ -55,8 +63,8 @@ namespace Jusoft.DingtalkStream.Robot
             var content = robotMessage.Payload.GetProperty("content");
             return new ReceivedRobotMessage.PictureContent
             {
-                DownloadCode = content.GetProperty("downloadCode").GetString(),
-                PictureDownloadCode = content.GetProperty("pictureDownloadCode")  .GetString(),
+                DownloadCode = content.GetProperty("downloadCode").GetString() ,
+                PictureDownloadCode = content.GetProperty("pictureDownloadCode").GetString() ,
             };
 
         }
@@ -72,13 +80,18 @@ namespace Jusoft.DingtalkStream.Robot
                 throw new ArgumentException("消息类型不是视频消息");
             }
             var content = robotMessage.Payload.GetProperty("content");
-            return new ReceivedRobotMessage.VideoContent
+            var videoContent = new ReceivedRobotMessage.VideoContent
             {
-                DownloadCode = content.GetProperty("downloadCode").GetString(),
-                Duration = content.GetProperty("duration").GetInt64(),
-                VideoType = content.GetProperty("videoType").GetString(),
+                DownloadCode = content.GetProperty("downloadCode").GetString() ,
+                VideoType = content.GetProperty("videoType").GetString() ,
             };
 
+            // duration 有可能性不返回
+            if (content.TryGetProperty("duration" , out var jsonElmDuration))
+            {
+                videoContent.Duration = jsonElmDuration.GetInt64();
+            }
+            return videoContent;
         }
         /// <summary>
         /// 获取文件消息内容
@@ -94,8 +107,8 @@ namespace Jusoft.DingtalkStream.Robot
             var content = robotMessage.Payload.GetProperty("content");
             return new ReceivedRobotMessage.FileContent
             {
-                DownloadCode = content.GetProperty("downloadCode").GetString(),
-                FileName = content.GetProperty("fileName").GetString(),
+                DownloadCode = content.GetProperty("downloadCode").GetString() ,
+                FileName = content.GetProperty("fileName").GetString() ,
             };
 
         }
@@ -120,10 +133,18 @@ namespace Jusoft.DingtalkStream.Robot
                 {
                     switch (property.Name)
                     {
-                        case "text": richText.Text = property.Value.GetString(); break;
-                        case "downloadCode": richText.DownloadCode = property.Value.GetString(); break;
-                        case "pictureDownloadCode": richText.PictureDownloadCode = property.Value.GetString(); break;
-                        case "type": richText.Type = property.Value.GetString(); break;
+                        case "text":
+                            richText.Text = property.Value.GetString();
+                            break;
+                        case "downloadCode":
+                            richText.DownloadCode = property.Value.GetString();
+                            break;
+                        case "pictureDownloadCode":
+                            richText.PictureDownloadCode = property.Value.GetString();
+                            break;
+                        case "type":
+                            richText.Type = property.Value.GetString();
+                            break;
                         default:
                             break;
                     }

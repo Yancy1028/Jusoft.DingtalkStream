@@ -12,9 +12,9 @@ namespace Jusoft.DingtalkStream.Robot
         public class AudioContent
         {
             /// <summary>
-            /// 语音的时长，单位是（毫秒）。
+            /// 语音的时长，单位是（毫秒）。有可能性不返回
             /// </summary>
-            public long Duration { get; internal set; }
+            public long? Duration { get; internal set; }
             /// <summary>
             /// 文件的下载码，用于换取下载文件的二进制文件
             /// <list type="bullet">
