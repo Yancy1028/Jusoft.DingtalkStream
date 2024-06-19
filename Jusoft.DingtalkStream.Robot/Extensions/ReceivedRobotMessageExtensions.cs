@@ -113,7 +113,9 @@ namespace Jusoft.DingtalkStream.Robot
             var content = robotMessage.Payload.GetProperty("content");
             var richTextContent = new ReceivedRobotMessage.RichTextContent();
 
-            foreach (var item in content.EnumerateArray())
+            //issues:7 问题修复，对于富文本消息，在取值转换时，少处理了一个层级
+            var contentRichText = content.GetProperty("richText");
+            foreach (var item in contentRichText.EnumerateArray())
             {
                 var richText = new ReceivedRobotMessage.RichText();
                 foreach (var property in item.EnumerateObject())
