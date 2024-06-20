@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace Jusoft.DingtalkStream.Robot
 {
@@ -43,9 +44,8 @@ namespace Jusoft.DingtalkStream.Robot
             // duration 有可能性不返回
             if (content.TryGetProperty("duration" , out var jsonElmDuration))
             {
-                audioContent.Duration = jsonElmDuration.GetInt64();
+                audioContent.Duration = TryGetInt64(jsonElmDuration);
             }
-
 
             return audioContent;
         }
@@ -89,10 +89,11 @@ namespace Jusoft.DingtalkStream.Robot
             // duration 有可能性不返回
             if (content.TryGetProperty("duration" , out var jsonElmDuration))
             {
-                videoContent.Duration = jsonElmDuration.GetInt64();
+                videoContent.Duration = TryGetInt64(jsonElmDuration);
             }
             return videoContent;
         }
+
         /// <summary>
         /// 获取文件消息内容
         /// </summary>
@@ -155,6 +156,28 @@ namespace Jusoft.DingtalkStream.Robot
             }
 
             return richTextContent;
+        }
+
+
+        /// <summary>
+        /// 获取因返回消息类型不正确时，但还是需要尝试获取转换的long类型处理办法
+        /// </summary>
+        /// <param name="jsonElement"></param>
+        /// <returns></returns>
+        static long? TryGetInt64(JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.String:
+                    if (long.TryParse(jsonElement.GetString() , out var duration))
+                    {
+                        return duration;
+                    }
+                    break;
+                case JsonValueKind.Number:
+                    return jsonElement.GetInt64();
+            }
+            return null;
         }
     }
 }

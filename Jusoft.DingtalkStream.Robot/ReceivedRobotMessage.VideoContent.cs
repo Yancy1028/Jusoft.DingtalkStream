@@ -14,7 +14,7 @@ namespace Jusoft.DingtalkStream.Robot
             /// <summary>
             /// 语音的时长，单位是（毫秒）。
             /// </summary>
-            public long Duration { get; internal set; }
+            public long? Duration { get; internal set; }
             /// <summary>
             /// 文件的下载码，用于换取下载文件的二进制文件
             /// <list type="bullet">
