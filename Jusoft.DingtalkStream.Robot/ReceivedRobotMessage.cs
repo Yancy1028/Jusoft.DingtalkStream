@@ -71,7 +71,18 @@ namespace Jusoft.DingtalkStream.Robot
         /// <summary>
         /// 是否在@列表中。
         /// </summary>
-        public bool IsInAtList => this.Payload.GetProperty("isInAtList").GetBoolean();
+        public bool IsInAtList
+        {
+            get
+            {
+                var jsonElm = this.Payload.GetProperty("isInAtList");
+                if (jsonElm.ValueKind == JsonValueKind.Null)
+                {
+                    return false;
+                }
+                return jsonElm.GetBoolean();
+            }
+        }
         /// <summary>
         /// 当前会话的Webhook地址。
         /// </summary>

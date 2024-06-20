@@ -16,9 +16,13 @@ namespace System.Text.Json
         /// </summary>
         /// <param name="jsonElement"></param>
         /// <returns></returns>
-        public static List<RobotMessageAtUser> ToRobotMessageAtUsers(this JsonElement jsonElement)
+        public static IEnumerable<RobotMessageAtUser> ToRobotMessageAtUsers(this JsonElement jsonElement)
         {
-            var list = new List<RobotMessageAtUser>();
+            // 防止未提供数据时，返回null值，此时应当返回空集合
+            if (jsonElement.ValueKind == JsonValueKind.Null)
+            {
+                yield break;
+            }
             foreach (var item in jsonElement.EnumerateArray())
             {
                 var model = new RobotMessageAtUser();
@@ -37,9 +41,8 @@ namespace System.Text.Json
                             break;
                     }
                 }
-                list.Add(model);
+                yield return model;
             }
-            return list;
         }
     }
 }

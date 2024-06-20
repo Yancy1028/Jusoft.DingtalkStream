@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -11,7 +12,7 @@ namespace Jusoft.DingtalkStream.Robot
     /// </summary>
     public class RobotMessageAtUserCollection : ReadOnlyCollection<RobotMessageAtUser>
     {
-        internal RobotMessageAtUserCollection(JsonElement payload) : base(payload.ToRobotMessageAtUsers())
+        internal RobotMessageAtUserCollection(JsonElement payload) : base(payload.ToRobotMessageAtUsers().ToList())
         {
             this.Payload = payload;
         }
